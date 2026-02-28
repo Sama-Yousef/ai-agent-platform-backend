@@ -1,0 +1,15 @@
+# Virtual Environment
+venv/
+aiagent/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db

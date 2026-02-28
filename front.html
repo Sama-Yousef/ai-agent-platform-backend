@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat AI</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 25%;
+      background: #f0f0f0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar h2 {
+      margin-top: 0;
+    }
+    .agent {
+      padding: 10px;
+      margin-bottom: 5px;
+      background: white;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .agent.selected {
+      background: #1d4ed8;
+      color: white;
+    }
+    .agent button {
+      background: #ccc;
+      border: none;
+      border-radius: 3px;
+      padding: 2px 5px;
+      cursor: pointer;
+    }
+    .add-agent-btn {
+      margin-top: auto;
+      padding: 10px;
+      background: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .chat-header h1 {
+      margin: 0;
+    }
+    .new-chat-btn {
+      padding: 5px 10px;
+      background: #1d4ed8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .messages {
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .message {
+      padding: 8px;
+      border-radius: 5px;
+      max-width: 70%;
+    }
+    .message.user {
+      background: #bfdbfe;
+      align-self: flex-end;
+    }
+    .message.ai {
+      background: #e5e7eb;
+      align-self: flex-start;
+    }
+    .input-area {
+      display: flex;
+      gap: 5px;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .input-area button {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+    }
+    .send-btn {
+      background: #1d4ed8;
+    }
+    .voice-btn {
+      background: #22c55e;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Agents</h2>
+    <div id="agents-list"></div>
+    <button class="add-agent-btn" onclick="addAgent()">Add Agent</button>
+  </div>
+
+  <!-- Chat Area -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <h1 id="selected-agent">Select an Agent</h1>
+      <button class="new-chat-btn" onclick="newChat()">New Chat</button>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <input type="text" id="message-input" placeholder="Type your message or use voice...">
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+      <button class="voice-btn" onclick="alert('Record audio not implemented')">🎤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let agents = [{name: "Football Agent"}, {name: "Test Agent"}];
+  let selectedAgent = agents[0];
+  let messages = [];
+
+  const agentsList = document.getElementById("agents-list");
+  const selectedAgentEl = document.getElementById("selected-agent");
+  const messagesEl = document.getElementById("messages");
+
+  function renderAgents() {
+    agentsList.innerHTML = "";
+    agents.forEach((agent, idx) => {
+      const agentDiv = document.createElement("div");
+      agentDiv.className = "agent" + (selectedAgent.name === agent.name ? " selected" : "");
+      agentDiv.innerHTML = `${agent.name} <button onclick="editAgent(${idx}, event)">Edit</button>`;
+      agentDiv.onclick = () => { selectedAgent = agent; selectedAgentEl.textContent = agent.name; renderAgents(); newChat(); };
+      agentsList.appendChild(agentDiv);
+    });
+    selectedAgentEl.textContent = selectedAgent.name;
+  }
+
+  function editAgent(idx, event) {
+    event.stopPropagation();
+    alert(`Edit ${agents[idx].name} (implement later)`);
+  }
+
+  function addAgent() {
+    const name = prompt("Enter new agent name:");
+    if(name) {
+      const newAgent = {name};
+      agents.push(newAgent);
+      selectedAgent = newAgent;
+      renderAgents();
+      newChat();
+    }
+  }
+
+  function renderMessages() {
+    messagesEl.innerHTML = "";
+    messages.forEach(msg => {
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "message " + msg.from;
+      msgDiv.textContent = msg.text;
+      messagesEl.appendChild(msgDiv);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("message-input");
+    if(!input.value.trim()) return;
+    messages.push({from: "user", text: input.value});
+    input.value = "";
+    renderMessages();
+
+    // Simulate AI response
+    setTimeout(() => {
+      messages.push({from: "ai", text: `Hello! How can I assist you with ${selectedAgent.name}-related questions today?`});
+      renderMessages();
+    }, 1000);
+  }
+
+  function newChat() {
+    messages = [];
+    renderMessages();
+  }
+
+  // Initial render
+  renderAgents();
+  renderMessages();
+</script>
+
+</body>
+</html>
