@@ -1,5 +1,6 @@
 # AI Agent Platform
 
+![frontend](/frontend.png)
 A production-ready AI Agent Platform built with FastAPI, Async
 SQLAlchemy, and SQLite.
 
